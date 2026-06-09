@@ -15,10 +15,9 @@ public class MainController {
     @FXML
     private Button btnDeletar;
     @FXML
-    private Button btnEditar;
-    @FXML
     private Button btnCadastrar;
-
+    @FXML
+    private Button btnLimpar;
     @FXML
     private TextField txtId;
     @FXML
@@ -31,8 +30,6 @@ public class MainController {
     private TextField txtPreco;
     @FXML
     private TableView<JogoDTO> tabelaJogos;
-
-    // CORREÇÃO 1: Alterado de colID para colId (combinando com o padrão de colPreco, colNome, etc. do FXML)
     @FXML
     private TableColumn<JogoDTO, Integer> colId;
     @FXML
@@ -46,7 +43,6 @@ public class MainController {
 
     @FXML
     private void initialize() {
-        // Uso do colId corrigido aqui também
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("titulo"));
         colGenero.setCellValueFactory(new PropertyValueFactory<>("genero"));
@@ -56,11 +52,13 @@ public class MainController {
         System.out.println("FXML carregado com sucesso!");
         atualizarTabela();
     }
-
-    // CORREÇÃO 2: Criado este método alternativo caso o FXML chame "btnCadrastarAction" com erro de digitação
     @FXML
     private void btnCadrastarAction() {
         btnCadastrarAction();
+    }
+    @FXML
+    private void btnLimparAction() {
+        limparCampos();
     }
 
     @FXML
@@ -80,20 +78,6 @@ public class MainController {
         jogoDAO.cadastrarJogo(jogoDTO);
 
         atualizarTabela();
-        limparCampos();
-    }
-
-    @FXML
-    private void btnEditarAction() {
-        JogoDTO jogoSelecionado = tabelaJogos.getSelectionModel().getSelectedItem();
-
-        if (jogoSelecionado != null) {
-            txtId.setText(String.valueOf(jogoSelecionado.getId()));
-            txtNome.setText(jogoSelecionado.getTitulo());
-            txtGenero.setText(jogoSelecionado.getGenero());
-            txtPlataforma.setText(jogoSelecionado.getPlataforma());
-            txtPreco.setText(String.valueOf(jogoSelecionado.getPreco()));
-        }
     }
 
     @FXML
@@ -115,7 +99,6 @@ public class MainController {
         jogoDAO.atualizarJogo(jogoDTO);
 
         atualizarTabela();
-        limparCampos();
     }
 
     @FXML
@@ -126,7 +109,6 @@ public class MainController {
         jogoDAO.excluirJogo(id);
 
         atualizarTabela();
-        limparCampos();
     }
 
     private void atualizarTabela() {
@@ -153,6 +135,8 @@ public class MainController {
             txtPlataforma.setText(objJogoDTO.getPlataforma());
             double Preco = objJogoDTO.getPreco();
             txtPreco.setText(String.valueOf(Preco));
+            int Id = objJogoDTO.getId();
+            txtId.setText(String.valueOf(Id));
         }
     }
 }
