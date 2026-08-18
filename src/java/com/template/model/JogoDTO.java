@@ -1,4 +1,4 @@
-package com.template;
+package com.template.model;
 
 public class JogoDTO {
     private int id;

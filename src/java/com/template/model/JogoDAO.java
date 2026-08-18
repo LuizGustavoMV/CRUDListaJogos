@@ -1,14 +1,21 @@
-package com.template;
+package com.template.model;
+
+import com.template.util.DialogUtil;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JogoDAO {
 
+    // Logger configurado para registrar exceções no log do sistema
+    private static final Logger logger = Logger.getLogger(JogoDAO.class.getName());
     private final Conexao conexao;
 
     public JogoDAO() {
         this.conexao = new Conexao();
     }
+
     public void cadastrarJogo(JogoDTO jogo) {
         String sql = "INSERT INTO jogo (titulo, genero, plataforma, preco) VALUES (?, ?, ?, ?)";
         try (Connection conn = conexao.conectar();
@@ -20,12 +27,13 @@ public class JogoDAO {
             ps.setDouble(4, jogo.getPreco());
 
             ps.execute();
-            System.out.println("[SUCESSO] Jogo \"" + jogo.getTitulo() + "\" cadastrado com êxito!");
 
         } catch (SQLException e) {
-            System.err.println("[ERRO] Falha ao cadastrar o jogo: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro ao cadastrar jogo", e);
+            DialogUtil.showError("Erro ao cadastrar jogo no banco de dados.");
         }
     }
+
     public ArrayList<JogoDTO> listarJogos() {
         String sql = "SELECT * FROM jogo ORDER BY id ASC";
         ArrayList<JogoDTO> listaJogos = new ArrayList<>();
@@ -45,11 +53,13 @@ public class JogoDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("[ERRO] Falha ao listar os jogos: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro ao listar jogos", e);
+            DialogUtil.showError("Erro ao listar jogos do banco de dados.");
         }
 
         return listaJogos;
     }
+
     public void atualizarJogo(JogoDTO jogo) {
         String sql = "UPDATE jogo SET titulo = ?, genero = ?, plataforma = ?, preco = ? WHERE id = ?";
 
@@ -64,16 +74,16 @@ public class JogoDAO {
 
             int linhasAfetadas = ps.executeUpdate();
 
-            if (linhasAfetadas > 0) {
-                System.out.println("[SUCESSO] Jogo com ID " + jogo.getId() + " atualizado com êxito!");
-            } else {
-                System.out.println("[AVISO] Nenhum jogo encontrado com o ID " + jogo.getId());
+            if (linhasAfetadas == 0) {
+                DialogUtil.showError("Nenhum jogo encontrado com o ID " + jogo.getId());
             }
 
         } catch (SQLException e) {
-            System.err.println("[ERRO] Falha ao atualizar o jogo: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro ao atualizar jogo", e);
+            DialogUtil.showError("Erro ao atualizar jogo no banco de dados.");
         }
     }
+
     public void excluirJogo(int id) {
         String sql = "DELETE FROM jogo WHERE id = ?";
 
@@ -83,14 +93,13 @@ public class JogoDAO {
             ps.setInt(1, id);
             int linhasAfetadas = ps.executeUpdate();
 
-            if (linhasAfetadas > 0) {
-                System.out.println("[SUCESSO] Jogo com ID " + id + " removido com êxito!");
-            } else {
-                System.out.println("[AVISO] Nenhum jogo encontrado com o ID " + id);
+            if (linhasAfetadas == 0) {
+                DialogUtil.showError("Nenhum jogo encontrado com o ID " + id);
             }
 
         } catch (SQLException e) {
-            System.err.println("[ERRO] Falha ao excluir o jogo: " + e.getMessage());
+            logger.log(Level.SEVERE, "Erro ao excluir jogo", e);
+            DialogUtil.showError("Erro ao excluir jogo do banco de dados.");
         }
     }
 }
