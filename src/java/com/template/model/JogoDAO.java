@@ -1,5 +1,6 @@
 package com.template.model;
 
+import com.template.model.dto.JogoDTO;
 import com.template.util.DialogUtil;
 import java.sql.*;
 import java.util.ArrayList;

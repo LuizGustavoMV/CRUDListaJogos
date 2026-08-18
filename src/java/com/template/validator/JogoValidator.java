@@ -1,38 +1,36 @@
 package com.template.validator;
 
-import com.template.exception.ValidationException;
-
 public class JogoValidator {
 
-    public static void validarCamposObrigatorios(String titulo) {
-        if (titulo == null || titulo.trim().isEmpty()) {
-            throw new ValidationException("O Nome/Título do jogo é obrigatório.");
+    public static void validarNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("O nome do jogo é obrigatório.");
         }
     }
 
-    public static double validarEConverterPreco(String precoStr) {
-        if (precoStr == null || precoStr.trim().isEmpty()) {
-            throw new ValidationException("O campo Preço é obrigatório.");
+    public static double parsePreco(String precoStr) {
+        if (precoStr == null || precoStr.isBlank()) {
+            throw new IllegalArgumentException("O preço é obrigatório.");
         }
         try {
             double preco = Double.parseDouble(precoStr.replace(",", "."));
             if (preco < 0) {
-                throw new ValidationException("O preço não pode ser negativo.");
+                throw new IllegalArgumentException("O preço não pode ser negativo.");
             }
             return preco;
         } catch (NumberFormatException e) {
-            throw new ValidationException("Formato de preço inválido. Digite um número válido.");
+            throw new IllegalArgumentException("Preço inválido.");
         }
     }
 
-    public static int validarEConverterId(String idStr) {
-        if (idStr == null || idStr.trim().isEmpty()) {
-            throw new ValidationException("Selecione um jogo na tabela para prosseguir.");
+    public static int parseId(String idStr) {
+        if (idStr == null || idStr.isBlank()) {
+            throw new IllegalArgumentException("Selecione um jogo na tabela.");
         }
         try {
             return Integer.parseInt(idStr.trim());
         } catch (NumberFormatException e) {
-            throw new ValidationException("ID do jogo inválido.");
+            throw new IllegalArgumentException("ID inválido.");
         }
     }
 }

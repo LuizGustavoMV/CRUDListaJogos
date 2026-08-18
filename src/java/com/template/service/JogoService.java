@@ -1,8 +1,9 @@
 package com.template.service;
 
 import com.template.model.JogoDAO;
-import com.template.model.JogoDTO;
+import com.template.model.dto.JogoDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,9 +37,17 @@ public class JogoService {
             return todos;
         }
         String termoLower = termo.toLowerCase().trim();
-        return todos.stream()
-                .filter(jogo -> (jogo.getTitulo() != null && jogo.getTitulo().toLowerCase().contains(termoLower))
-                        || (jogo.getGenero() != null && jogo.getGenero().toLowerCase().contains(termoLower)))
-                .collect(Collectors.toList());
+        List<JogoDTO> filtrados = new ArrayList<>();
+
+        for (JogoDTO jogo : todos) {
+            String titulo = jogo.getTitulo() != null ? jogo.getTitulo().toLowerCase() : "";
+            String genero = jogo.getGenero() != null ? jogo.getGenero().toLowerCase() : "";
+
+            if (titulo.contains(termoLower) || genero.contains(termoLower)) {
+                filtrados.add(jogo);
+            }
+        }
+
+        return filtrados;
     }
 }

@@ -1,7 +1,6 @@
 package com.template.controller;
 
-import com.template.exception.ValidationException;
-import com.template.model.JogoDTO;
+import com.template.model.dto.JogoDTO;
 import com.template.service.JogoService;
 import com.template.util.DialogUtil;
 import com.template.validator.JogoValidator;
@@ -45,17 +44,14 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        configurarColunasTabela();
-        atualizarTabela();
-        exibirMensagem("Sistema inicializado com sucesso.", true);
-    }
-
-    private void configurarColunasTabela() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("titulo"));
         colGenero.setCellValueFactory(new PropertyValueFactory<>("genero"));
         colPlataforma.setCellValueFactory(new PropertyValueFactory<>("plataforma"));
         colPreco.setCellValueFactory(new PropertyValueFactory<>("preco"));
+
+        atualizarTabela();
+        exibirMensagem("Sistema inicializado com sucesso.", true);
     }
 
     @FXML
@@ -67,7 +63,7 @@ public class MainController implements Initializable {
             notificarSucesso("Jogo '" + dto.getTitulo() + "' cadastrado com sucesso!");
             limparCampos();
             atualizarTabela();
-        } catch (ValidationException e) {
+        } catch (IllegalArgumentException e) {
             notificarErro(e.getMessage());
         } catch (Exception e) {
             notificarErro("Erro inesperado ao cadastrar o jogo.");
@@ -83,7 +79,7 @@ public class MainController implements Initializable {
             notificarSucesso("Jogo ID " + dto.getId() + " atualizado com sucesso!");
             limparCampos();
             atualizarTabela();
-        } catch (ValidationException e) {
+        } catch (IllegalArgumentException e) {
             notificarErro(e.getMessage());
         } catch (Exception e) {
             notificarErro("Erro inesperado ao atualizar o jogo.");
@@ -93,13 +89,13 @@ public class MainController implements Initializable {
     @FXML
     private void btnDeletarAction() {
         try {
-            int id = JogoValidator.validarEConverterId(txtId.getText());
+            int id = JogoValidator.parseId(txtId.getText());
             jogoService.excluir(id);
 
             notificarSucesso("Jogo ID " + id + " removido com sucesso!");
             limparCampos();
             atualizarTabela();
-        } catch (ValidationException e) {
+        } catch (IllegalArgumentException e) {
             notificarErro(e.getMessage());
         } catch (Exception e) {
             notificarErro("Erro inesperado ao deletar o jogo.");
@@ -132,9 +128,9 @@ public class MainController implements Initializable {
     }
 
     private JogoDTO extrairDTODosCampos(boolean precisaId) {
-        int id = precisaId ? JogoValidator.validarEConverterId(txtId.getText()) : 0;
-        JogoValidator.validarCamposObrigatorios(txtNome.getText());
-        double preco = JogoValidator.validarEConverterPreco(txtPreco.getText());
+        int id = precisaId ? JogoValidator.parseId(txtId.getText()) : 0;
+        JogoValidator.validarNome(txtNome.getText());
+        double preco = JogoValidator.parsePreco(txtPreco.getText());
 
         return new JogoDTO(id, txtNome.getText(), txtGenero.getText(), txtPlataforma.getText(), preco);
     }
