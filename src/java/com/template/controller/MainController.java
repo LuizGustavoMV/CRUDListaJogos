@@ -23,7 +23,6 @@ public class MainController implements Initializable {
     @FXML private Button btnDeletar;
     @FXML private Button btnCadastrar;
     @FXML private Button btnLimpar;
-
     @FXML private TextField txtId;
     @FXML private TextField txtNome;
     @FXML private TextField txtGenero;
@@ -44,20 +43,27 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        configurarColunasTabela();
+        atualizarTabela();
+        exibirMensagem("Sistema inicializado com sucesso.", true);
+    }
+
+    private void configurarColunasTabela() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("titulo"));
         colGenero.setCellValueFactory(new PropertyValueFactory<>("genero"));
         colPlataforma.setCellValueFactory(new PropertyValueFactory<>("plataforma"));
         colPreco.setCellValueFactory(new PropertyValueFactory<>("preco"));
-
-        atualizarTabela();
-        exibirMensagem("Sistema inicializado com sucesso.", true);
     }
-
     @FXML
     private void btnCadastrarAction() {
         try {
-            JogoDTO dto = extrairDTODosCampos(false);
+            // Executa as validações dos campos de texto
+            JogoValidator.validarCampos(txtNome.getText(), txtPlataforma.getText(), txtPreco.getText());
+
+            double preco = Double.parseDouble(txtPreco.getText().replace(",", "."));
+            JogoDTO dto = new JogoDTO(0, txtNome.getText(), txtGenero.getText(), txtPlataforma.getText(), preco);
+
             jogoService.cadastrar(dto);
 
             notificarSucesso("Jogo '" + dto.getTitulo() + "' cadastrado com sucesso!");
@@ -73,10 +79,16 @@ public class MainController implements Initializable {
     @FXML
     private void btnSalvarAction() {
         try {
-            JogoDTO dto = extrairDTODosCampos(true);
+            // Valida o ID e os demais campos antes de atualizar
+            int id = JogoValidator.validarEConverterId(txtId.getText());
+            JogoValidator.validarCampos(txtNome.getText(), txtPlataforma.getText(), txtPreco.getText());
+
+            double preco = Double.parseDouble(txtPreco.getText().replace(",", "."));
+            JogoDTO dto = new JogoDTO(id, txtNome.getText(), txtGenero.getText(), txtPlataforma.getText(), preco);
+
             jogoService.atualizar(dto);
 
-            notificarSucesso("Jogo ID " + dto.getId() + " atualizado com sucesso!");
+            notificarSucesso("Jogo ID " + id + " atualizado com sucesso!");
             limparCampos();
             atualizarTabela();
         } catch (IllegalArgumentException e) {
@@ -89,7 +101,9 @@ public class MainController implements Initializable {
     @FXML
     private void btnDeletarAction() {
         try {
-            int id = JogoValidator.parseId(txtId.getText());
+            // Valida se o ID foi selecionado antes de excluir
+            int id = JogoValidator.validarEConverterId(txtId.getText());
+
             jogoService.excluir(id);
 
             notificarSucesso("Jogo ID " + id + " removido com sucesso!");
@@ -125,14 +139,6 @@ public class MainController implements Initializable {
             txtPreco.setText(String.valueOf(selecionado.getPreco()));
             exibirMensagem("Jogo selecionado para edição.", true);
         }
-    }
-
-    private JogoDTO extrairDTODosCampos(boolean precisaId) {
-        int id = precisaId ? JogoValidator.parseId(txtId.getText()) : 0;
-        JogoValidator.validarNome(txtNome.getText());
-        double preco = JogoValidator.parsePreco(txtPreco.getText());
-
-        return new JogoDTO(id, txtNome.getText(), txtGenero.getText(), txtPlataforma.getText(), preco);
     }
 
     private void atualizarTabela() {
