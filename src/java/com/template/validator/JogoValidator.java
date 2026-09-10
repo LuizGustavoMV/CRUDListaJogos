@@ -1,9 +1,9 @@
 package com.template.validator;
 
-public class JogoValidator {
+public class JogoValidator implements IJogoValidator {
 
-    // Valida todos os campos do formulário de uma só vez
-    public static void validarCampos(String nome, String plataforma, String precoStr) {
+    @Override
+    public boolean validarCampos(String nome, String plataforma, String precoStr) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("O nome do jogo é obrigatório.");
         }
@@ -24,10 +24,12 @@ public class JogoValidator {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("O preço informado é inválido. Digite um valor numérico.");
         }
+
+        return true;
     }
 
-    // Valida e converte o campo ID
-    public static int validarEConverterId(String idStr) {
+    @Override
+    public int validarEConverterId(String idStr) {
         if (idStr == null || idStr.trim().isEmpty()) {
             throw new IllegalArgumentException("Selecione um jogo na tabela para prosseguir.");
         }

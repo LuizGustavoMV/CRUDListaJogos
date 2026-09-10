@@ -1,8 +1,10 @@
 package com.template.controller;
 
 import com.template.model.dto.JogoDTO;
+import com.template.service.IJogoService;
 import com.template.service.JogoService;
 import com.template.util.DialogUtil;
+import com.template.validator.IJogoValidator;
 import com.template.validator.JogoValidator;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -23,6 +25,7 @@ public class MainController implements Initializable {
     @FXML private Button btnDeletar;
     @FXML private Button btnCadastrar;
     @FXML private Button btnLimpar;
+
     @FXML private TextField txtId;
     @FXML private TextField txtNome;
     @FXML private TextField txtGenero;
@@ -39,7 +42,20 @@ public class MainController implements Initializable {
 
     @FXML private Label lblMensagem;
 
-    private final JogoService jogoService = new JogoService();
+    // Depende das Abstrações (Interfaces)
+    private final IJogoService jogoService;
+    private final IJogoValidator jogoValidator;
+
+    // Construtor padrão necessário para o JavaFX (FXMLLoader)
+    public MainController() {
+        this(new JogoService(), new JogoValidator());
+    }
+
+    // Injeção de dependência via Construtor
+    public MainController(IJogoService jogoService, IJogoValidator jogoValidator) {
+        this.jogoService = jogoService;
+        this.jogoValidator = jogoValidator;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -55,11 +71,11 @@ public class MainController implements Initializable {
         colPlataforma.setCellValueFactory(new PropertyValueFactory<>("plataforma"));
         colPreco.setCellValueFactory(new PropertyValueFactory<>("preco"));
     }
+
     @FXML
     private void btnCadastrarAction() {
         try {
-            // Executa as validações dos campos de texto
-            JogoValidator.validarCampos(txtNome.getText(), txtPlataforma.getText(), txtPreco.getText());
+            jogoValidator.validarCampos(txtNome.getText(), txtPlataforma.getText(), txtPreco.getText());
 
             double preco = Double.parseDouble(txtPreco.getText().replace(",", "."));
             JogoDTO dto = new JogoDTO(0, txtNome.getText(), txtGenero.getText(), txtPlataforma.getText(), preco);
@@ -79,9 +95,8 @@ public class MainController implements Initializable {
     @FXML
     private void btnSalvarAction() {
         try {
-            // Valida o ID e os demais campos antes de atualizar
-            int id = JogoValidator.validarEConverterId(txtId.getText());
-            JogoValidator.validarCampos(txtNome.getText(), txtPlataforma.getText(), txtPreco.getText());
+            int id = jogoValidator.validarEConverterId(txtId.getText());
+            jogoValidator.validarCampos(txtNome.getText(), txtPlataforma.getText(), txtPreco.getText());
 
             double preco = Double.parseDouble(txtPreco.getText().replace(",", "."));
             JogoDTO dto = new JogoDTO(id, txtNome.getText(), txtGenero.getText(), txtPlataforma.getText(), preco);
@@ -101,8 +116,7 @@ public class MainController implements Initializable {
     @FXML
     private void btnDeletarAction() {
         try {
-            // Valida se o ID foi selecionado antes de excluir
-            int id = JogoValidator.validarEConverterId(txtId.getText());
+            int id = jogoValidator.validarEConverterId(txtId.getText());
 
             jogoService.excluir(id);
 

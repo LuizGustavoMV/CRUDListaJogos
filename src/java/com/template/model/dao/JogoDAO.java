@@ -1,5 +1,6 @@
-package com.template.model;
+package com.template.model.dao;
 
+import com.template.model.Conexao;
 import com.template.model.dto.JogoDTO;
 import com.template.util.DialogUtil;
 import java.sql.*;
